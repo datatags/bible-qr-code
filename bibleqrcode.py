@@ -20,7 +20,7 @@ def get_intent_url(book_name, chapter, verse_start=None, verse_end=None, version
             verse_start = verse_end
 
     # URL template for www.bible.com
-    url_template = "https://www.bible.com/en-GB/bible/{language_code}/{book_code}{chapter}{verse_start}{verse_end}{version}"
+    url_template = "https://www.bible.com/en-GB/bible/{version_code}/{book_code}{chapter}{verse_start}{verse_end}"
 
     # Book name mappings for www.bible.com
     book_mappings = {
@@ -92,10 +92,6 @@ def get_intent_url(book_name, chapter, verse_start=None, verse_end=None, version
         "Revelation": "REV"
     }
 
-    # TODO ajs 10/Dec/2017 Add lookup code for other languages
-    # Language '1' is English on www.bible.com
-    language_code = "1"
-
     # Look up the www.bible.com book code
     book_code = None
     if book_name in book_mappings:
@@ -104,16 +100,111 @@ def get_intent_url(book_name, chapter, verse_start=None, verse_end=None, version
     if book_code is None:
         raise ValueError("Unknown book name: '{0}'".format(book_name))
 
+    # Check www.bible.com for version codes
+    version_code = get_version_code(version)
+
     url = url_template.format(
-        language_code = language_code,
+        version_code = version_code,
         book_code = book_code,
         chapter = "." + str(chapter),
         verse_start = "" if (verse_start == None) else ("." + str(verse_start)),
         verse_end = "" if (verse_end == None) else ("-" + str(verse_end)),
-        version = "" if (version == None) else ("." + version)
     )
 
     return url
+
+
+"""
+Get version code from letter abbreviation
+@param version - version abbreviation (required)
+"""
+def get_version_code(version):
+    if version is None:
+        # Version 1 is KJV
+        return 1
+
+    if version.isdigit():
+        # Probably already is a version code
+        return version
+
+    versions = {
+        "AMP": 1588,
+        "AMPC": 8,
+        "ASV": 12,
+        "BOOKS": 31,
+        "BSB": 3034,
+        "CEB": 37,
+        "CEV": 392,
+        "CEVDCI": 303,
+        "CEVUK": 294,
+        "CJB": 1275,
+        "CPDV": 42,
+        "CSB": 1713,
+        "DARBY": 478,
+        "DRC1752": 55,
+        "EASY": 2079,
+        "ERV": 406,
+        "ESV": 59,
+        "FBV": 1932,
+        "GNBDC": 416,
+        "GNBDK": 431,
+        "GNBUK": 296,
+        "GNT": 68,
+        "GNTD": 69,
+        "GNV": 2163,
+        "GW": 70,
+        "GWC": 1047,
+        "HCSB": 72,
+        "ICB": 1359,
+        "JUB": 1077,
+        "KJV": 1,
+        "KJVAAE": 546,
+        "KJVAE": 547,
+        "LEB": 90,
+        "MEV": 1171,
+        "MP1650": 1365,
+        "MP1781": 3051,
+        "MSG": 97,
+        "NABRE": 463,
+        "NASB1995": 100,
+        "NASB2020": 2692,
+        "NCV": 105,
+        "NET": 107,
+        "NIRV": 110,
+        "NIV": 111,
+        "NIVUK": 113,
+        "NKJV": 114,
+        "NLT": 116,
+        "NMV": 2135,
+        "NRSV": 2016,
+        "NRSV-CI": 2015,
+        "OJB": 130,
+        "PEV": 2530,
+        "RAD": 2753,
+        "RSV": 2020,
+        "RSV-CI": 2017,
+        "RV1885": 477,
+        "RV1895": 1922,
+        "TEG": 3010,
+        "TLV": 314,
+        "TPT": 1849,
+        "TS2009": 316,
+        "WBMS": 2407,
+        "WEB": 206,
+        "WEBBE": 1204,
+        "WMB": 1209,
+        "WMBBE": 1207,
+        "YLT98": 821,
+    }
+
+    version_code = None
+    if version in versions:
+        version_code = versions[version]
+
+    if version_code is None:
+        raise ValueError("Unknown version: '{0}'".format(version))
+
+    return version_code
 
 
 """
